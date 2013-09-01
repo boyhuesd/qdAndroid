@@ -155,7 +155,7 @@ public class MainActivity extends Activity {
 			  if (buffer[0] == 3)
 			  {
 				  mTxtReceive.setBackgroundColor(Color.CYAN);
-				  mTxtReceive.append("OK");
+				  mTxtReceive.append("OK!");
 			  }
 			  
 			  buffer[0] = 0;
