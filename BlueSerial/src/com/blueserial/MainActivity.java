@@ -9,6 +9,7 @@ package com.blueserial;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
+import android.graphics.Color;
 
 import com.blueserial.R;
 
@@ -31,6 +32,7 @@ import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 
 public class MainActivity extends Activity {
 	
@@ -148,8 +150,15 @@ public class MainActivity extends Activity {
 			  {
 			  mTxtReceive.append(String.valueOf(buffer[0]));
 			  mTxtReceive.append(String.valueOf(buffer[1]));
-			  buffer[0] = 0;
 			  }
+			  
+			  if (buffer[0] == 3)
+			  {
+				  mTxtReceive.setBackgroundColor(Color.CYAN);
+				  mTxtReceive.append("OK");
+			  }
+			  
+			  buffer[0] = 0;
 			  m1Handler.postDelayed(update1TxtReceive, 500);
 		   }
 		  
