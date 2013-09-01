@@ -6,6 +6,8 @@
 
 package com.blueserial;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -62,6 +64,10 @@ public class Homescreen extends Activity {
 	public static final String BUFFER_SIZE = "com.blueserial.buffersize";
 	private static final String TAG = "BlueTest5-Homescreen";
 
+	byte[] buffer = new byte[2];
+	int count = 0 ;
+	
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -126,6 +132,7 @@ public class Homescreen extends Activity {
 				intent.putExtra(DEVICE_EXTRA, device);
 				intent.putExtra(DEVICE_UUID, mDeviceUUID.toString());
 				intent.putExtra(BUFFER_SIZE, mBufferSize);
+				
 				startActivity(intent);
 
 			}
@@ -220,7 +227,58 @@ public class Homescreen extends Activity {
 			}
 		});
 	}
+	
+	
+	/*
+	 * 
+	 * 
+	 * 
+	 * READ INPUT
+	 * TODO:READ INPUT
+	 * 
+	 * 
+	 */
+	private class ReadInput implements Runnable {
 
+		private boolean bStop = false;
+		private Thread t;
+
+		public ReadInput() {
+			t = new Thread(this, "Input Thread");
+			t.start();
+		}
+
+		public boolean isRunning() {
+			return t.isAlive();
+		}
+
+		@Override
+		public void run() {
+			InputStream inputStream;
+
+			try {
+				inputStream = mBTSocket.getInputStream();
+				while (!bStop) {
+					if (inputStream.available() > 0) {
+						inputStream.read(buffer);
+					}
+					}
+					Thread.sleep(500);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		}
+
+		public void stop() {
+			bStop = true;
+		}
+
+	}
 	/**
 	 * Searches for paired devices. Doesn't do a scan! Only devices which are paired through Settings->Bluetooth
 	 * will show up with this. I didn't see any need to re-build the wheel over here

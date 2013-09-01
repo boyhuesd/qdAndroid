@@ -30,17 +30,18 @@ public final class R {
         public static final int logo=0x7f020002;
     }
     public static final class id {
-        public static final int action_settings=0x7f0a000e;
+        public static final int action_settings=0x7f0a000f;
         public static final int btnClear=0x7f0a000b;
         public static final int btnClearInput=0x7f0a0005;
         public static final int btnConnect=0x7f0a0003;
         public static final int btnDisconnect=0x7f0a0004;
+        public static final int btnPlantManager=0x7f0a000d;
         public static final int btnSearch=0x7f0a0002;
         public static final int btnSend=0x7f0a000c;
         public static final int chkReceiveText=0x7f0a0007;
         public static final int chkScroll=0x7f0a0006;
         public static final int editSend=0x7f0a000a;
-        public static final int lstContent=0x7f0a000d;
+        public static final int lstContent=0x7f0a000e;
         public static final int lstDevices=0x7f0a0001;
         public static final int txtListHeading=0x7f0a0000;
         public static final int txtReceive=0x7f0a0009;
@@ -50,7 +51,8 @@ public final class R {
         public static final int activity_helpscreen=0x7f030000;
         public static final int activity_homescreen=0x7f030001;
         public static final int activity_main=0x7f030002;
-        public static final int list_item=0x7f030003;
+        public static final int activity_welcomescreen=0x7f030003;
+        public static final int list_item=0x7f030004;
     }
     public static final class menu {
         public static final int helpscreen=0x7f090000;

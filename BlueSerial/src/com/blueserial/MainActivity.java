@@ -49,6 +49,7 @@ public class MainActivity extends Activity {
 	
 	byte[] buffer = new byte[2];
 	
+	
 	private boolean mIsUserInitiatedDisconnect = false;
 
 	// All controls here
