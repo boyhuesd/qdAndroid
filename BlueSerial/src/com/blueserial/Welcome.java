@@ -18,7 +18,8 @@ import android.widget.Toast;
 
 
 
-public class Welcome extends Activity implements View.OnClickListener {
+public class Welcome extends Activity implements View.OnClickListener
+{
 
 	public static final int BT_ENABLE_REQUEST = 10; // This is the code we use for BT Enable
 	public static final int SETTINGS = 20;
@@ -33,9 +34,8 @@ public class Welcome extends Activity implements View.OnClickListener {
 		
 		
 		super.onCreate(savedInstanceState);
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		 
-
 		setContentView(R.layout.activity_welcomescreen);
 		ActivityHelper.initialize(this);
 		
@@ -44,7 +44,7 @@ public class Welcome extends Activity implements View.OnClickListener {
 
 		mBtnPlanManager.setOnClickListener(this);
 
-/*		mBTAdapter = BluetoothAdapter.getDefaultAdapter();
+		mBTAdapter = BluetoothAdapter.getDefaultAdapter();
 		if (mBTAdapter == null) 
 		{
 			Toast.makeText(getApplicationContext(), "Bluetooth not found", Toast.LENGTH_SHORT).show();
@@ -53,20 +53,12 @@ public class Welcome extends Activity implements View.OnClickListener {
 			Intent enableBT = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
 			startActivityForResult(enableBT, BT_ENABLE_REQUEST);
 	    }
-*/
+
 	}
 
 		
 	
-	/**
-	 * Called when the screen rotates. If this isn't handled, data already generated is no longer available
-	 */
-	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
 
-		
-	}
 	
 	@Override
 	public void onClick(View v) {
@@ -112,4 +104,16 @@ public class Welcome extends Activity implements View.OnClickListener {
 
 		super.onStop();
 	}
+	/**
+	 * Called when the screen rotates. If this isn't handled, data already generated is no longer available
+	 */
+	@Override
+	protected void onSaveInstanceState(Bundle outState) 
+	{
+		
+		super.onSaveInstanceState(outState);
+
+		
+	}
 }
+

@@ -9,6 +9,7 @@ package com.blueserial;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -64,8 +65,14 @@ public class Homescreen extends Activity {
 	public static final String BUFFER_SIZE = "com.blueserial.buffersize";
 	private static final String TAG = "BlueTest5-Homescreen";
 
-	byte[] buffer = new byte[2];
+	public static byte[] buffer = new byte[2];
 	int count = 0 ;
+	
+	
+	
+	
+	public static byte[] CMD_FIND = {0X11, 0X00};
+	public static byte[] RES_FLAG = {0x22, 0x00};
 	
 	
 	@Override
@@ -139,95 +146,7 @@ public class Homescreen extends Activity {
 		});
 	}
 
-	/**
-	 * Called when the screen rotates. If this isn't handled, data already generated is no longer available
-	 */
-	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		MyAdapter adapter = (MyAdapter) (mLstDevices.getAdapter());
-		ArrayList<BluetoothDevice> list = (ArrayList<BluetoothDevice>) adapter.getEntireList();
-		
-		if (list != null) {
-			outState.putParcelableArrayList(DEVICE_LIST, list);
-			int selectedIndex = adapter.selectedIndex;
-			outState.putInt(DEVICE_LIST_SELECTED, selectedIndex);
-		}
-	}
 
-	@Override
-	protected void onPause() {
-		// TODO Auto-generated method stub
-		super.onPause();
-	}
-
-	@Override
-	protected void onStop() {
-		// TODO Auto-generated method stub
-		super.onStop();
-	}
-
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		switch (requestCode) {
-		case BT_ENABLE_REQUEST:
-			if (resultCode == RESULT_OK) {
-				msg("Bluetooth Enabled successfully");
-				new SearchDevices().execute();
-			} else {
-				msg("Bluetooth couldn't be enabled");
-			}
-
-			break;
-		case SETTINGS: //If the settings have been updated
-			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-			String uuid = prefs.getString("prefUuid", "Null");
-			mDeviceUUID = UUID.fromString(uuid);
-			Log.d(TAG, "UUID: " + uuid);
-			String bufSize = prefs.getString("prefTextBuffer", "Null");
-			mBufferSize = Integer.parseInt(bufSize);
-
-			String orientation = prefs.getString("prefOrientation", "Null");
-			Log.d(TAG, "Orientation: " + orientation);
-			if (orientation.equals("Landscape")) {
-				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-			} else if (orientation.equals("Portrait")) {
-				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-			} else if (orientation.equals("Auto")) {
-				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
-			}
-			break;
-		default:
-			break;
-		}
-		super.onActivityResult(requestCode, resultCode, data);
-	}
-
-	/**
-	 * Quick way to call the Toast
-	 * @param str
-	 */
-	private void msg(String str) {
-		Toast.makeText(getApplicationContext(), str, Toast.LENGTH_SHORT).show();
-	}
-
-	/**
-	 * Initialize the List adapter
-	 * @param objects
-	 */
-	private void initList(List<BluetoothDevice> objects) {
-		final MyAdapter adapter = new MyAdapter(getApplicationContext(), R.layout.list_item, R.id.lstContent, objects);
-		mLstDevices.setAdapter(adapter);
-		mLstDevices.setOnItemClickListener(new OnItemClickListener() {
-
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				adapter.setSelectedIndex(position);
-				mBtnConnect.setEnabled(true);
-			}
-		});
-	}
-	
 	
 	/*
 	 * 
@@ -238,7 +157,7 @@ public class Homescreen extends Activity {
 	 * 
 	 * 
 	 */
-	private class ReadInput implements Runnable {
+/*	private class ReadInput implements Runnable {
 
 		private boolean bStop = false;
 		private Thread t;
@@ -278,6 +197,58 @@ public class Homescreen extends Activity {
 			bStop = true;
 		}
 
+	}
+	*/
+	private class Determine implements Runnable
+	{
+		
+		private boolean res = false;
+		private byte[] readbuffer = null;
+		@Override
+		public void run()
+		{  
+		 
+			try
+			{	
+				while(!res)
+				{	
+					if (buffer[0] != RES_FLAG[0])
+					{
+						MainActivity.mBTSocket.getOutputStream().write(CMD_FIND);
+					
+						Thread.sleep(200);
+					
+						MainActivity.mBTSocket.getInputStream().read(readbuffer);
+
+					}
+					res = true;
+				}
+				
+				if (readbuffer[1]== 0x01)
+				{
+					BluetoothDevice device = ((MyAdapter) (mLstDevices.getAdapter())).getSelectedItem();
+					Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+					intent.putExtra(DEVICE_EXTRA, device);
+					intent.putExtra(DEVICE_UUID, mDeviceUUID.toString());
+					intent.putExtra(BUFFER_SIZE, mBufferSize);
+					
+					startActivity(intent);
+				}
+				else if (readbuffer[1] == 0x00)
+				{
+					
+				}
+				readbuffer = null;
+		
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}		
 	}
 	/**
 	 * Searches for paired devices. Doesn't do a scan! Only devices which are paired through Settings->Bluetooth
@@ -414,4 +385,93 @@ public class Homescreen extends Activity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
+	/**
+	 * Called when the screen rotates. If this isn't handled, data already generated is no longer available
+	 */
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		MyAdapter adapter = (MyAdapter) (mLstDevices.getAdapter());
+		ArrayList<BluetoothDevice> list = (ArrayList<BluetoothDevice>) adapter.getEntireList();
+		
+		if (list != null) {
+			outState.putParcelableArrayList(DEVICE_LIST, list);
+			int selectedIndex = adapter.selectedIndex;
+			outState.putInt(DEVICE_LIST_SELECTED, selectedIndex);
+		}
+	}
+
+	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		super.onPause();
+	}
+
+	@Override
+	protected void onStop() {
+		// TODO Auto-generated method stub
+		super.onStop();
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		switch (requestCode) {
+		case BT_ENABLE_REQUEST:
+			if (resultCode == RESULT_OK) {
+				msg("Bluetooth Enabled successfully");
+				new SearchDevices().execute();
+			} else {
+				msg("Bluetooth couldn't be enabled");
+			}
+
+			break;
+		case SETTINGS: //If the settings have been updated
+			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+			String uuid = prefs.getString("prefUuid", "Null");
+			mDeviceUUID = UUID.fromString(uuid);
+			Log.d(TAG, "UUID: " + uuid);
+			String bufSize = prefs.getString("prefTextBuffer", "Null");
+			mBufferSize = Integer.parseInt(bufSize);
+
+			String orientation = prefs.getString("prefOrientation", "Null");
+			Log.d(TAG, "Orientation: " + orientation);
+			if (orientation.equals("Landscape")) {
+				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+			} else if (orientation.equals("Portrait")) {
+				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+			} else if (orientation.equals("Auto")) {
+				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
+			}
+			break;
+		default:
+			break;
+		}
+		super.onActivityResult(requestCode, resultCode, data);
+	}
+
+	/**
+	 * Quick way to call the Toast
+	 * @param str
+	 */
+	private void msg(String str) {
+		Toast.makeText(getApplicationContext(), str, Toast.LENGTH_SHORT).show();
+	}
+
+	/**
+	 * Initialize the List adapter
+	 * @param objects
+	 */
+	private void initList(List<BluetoothDevice> objects) {
+		final MyAdapter adapter = new MyAdapter(getApplicationContext(), R.layout.list_item, R.id.lstContent, objects);
+		mLstDevices.setAdapter(adapter);
+		mLstDevices.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				adapter.setSelectedIndex(position);
+				mBtnConnect.setEnabled(true);
+			}
+		});
+	}
+	
 }
