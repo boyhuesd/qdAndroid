@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">demo bluetooth serial</string>
+    <string name="app_name">430PCare</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_helpscreen">Helpscreen</string>
     <string name="hello_world">Hello world!</string>
@@ -17,5 +17,18 @@
     <string name="pref_update_setting">Update Settings</string>
     <string name="pref_text_buffer_title">Input Buffer Size (In Chars)</string>
     <string name="pref_text_buffer_summary">Change the receive text buffer size</string>
+    <string name="btnWelcome">Plant manager</string>
+
+    <!-- ACTIVITY HOMESCREEN STRINGS -->
+    <string name="pairedDeviceList">Select a Plant</string>
+    <string name="btnSearchDevices">Search for Plants</string>
+    <string name="btnConnect">Connect</string>
+    <string name="btnChange">View another plant</string>
+    <string name="btnRefresh">Refresh</string>
+
+    <!-- HOME SCREEN -->
+    <string name="couldNotConnect">Could not connect. Please check the availability of the device.</string>
+    <string name="connected">Connected to the device</string>
+    <string name="title_activity_flower_select">Select plant type</string>
 
 </resources>

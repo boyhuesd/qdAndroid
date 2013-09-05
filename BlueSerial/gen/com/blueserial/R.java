@@ -26,48 +26,78 @@ public final class R {
     }
     public static final class drawable {
         public static final int back=0x7f020000;
-        public static final int ic_launcher=0x7f020001;
-        public static final int images=0x7f020002;
-        public static final int logo=0x7f020003;
+        public static final int humidity=0x7f020001;
+        public static final int ic_launcher=0x7f020002;
+        public static final int images=0x7f020003;
+        public static final int light_sensor=0x7f020004;
+        public static final int logo=0x7f020005;
+        public static final int soil=0x7f020006;
+        public static final int temp=0x7f020007;
     }
     public static final class id {
-        public static final int action_settings=0x7f0a0011;
-        public static final int btnClear=0x7f0a000b;
-        public static final int btnClearInput=0x7f0a0005;
-        public static final int btnConnect=0x7f0a0003;
-        public static final int btnDisconnect=0x7f0a0004;
-        public static final int btnPlantManager=0x7f0a000f;
-        public static final int btnSearch=0x7f0a0002;
-        public static final int btnSend=0x7f0a000c;
-        public static final int chkReceiveText=0x7f0a0007;
-        public static final int chkScroll=0x7f0a0006;
-        public static final int editSend=0x7f0a000a;
-        public static final int imageView1=0x7f0a000d;
-        public static final int layout=0x7f0a000e;
-        public static final int lstContent=0x7f0a0010;
-        public static final int lstDevices=0x7f0a0001;
-        public static final int txtListHeading=0x7f0a0000;
-        public static final int txtReceive=0x7f0a0009;
-        public static final int viewScroll=0x7f0a0008;
+        public static final int action_settings=0x7f0a001d;
+        public static final int btnClear=0x7f0a000c;
+        public static final int btnClearInput=0x7f0a0006;
+        public static final int btnConnect=0x7f0a0004;
+        public static final int btnDisconnect=0x7f0a0005;
+        public static final int btnPlantManager=0x7f0a001b;
+        public static final int btnRefresh=0x7f0a0019;
+        public static final int btnSearch=0x7f0a0003;
+        public static final int btnSend=0x7f0a000d;
+        public static final int button1=0x7f0a0000;
+        public static final int chkReceiveText=0x7f0a0008;
+        public static final int chkScroll=0x7f0a0007;
+        public static final int editSend=0x7f0a000b;
+        public static final int imageView2=0x7f0a0010;
+        public static final int imageView3=0x7f0a0012;
+        public static final int imageView4=0x7f0a0014;
+        public static final int imageView5=0x7f0a0016;
+        public static final int imgPlant=0x7f0a000f;
+        public static final int layout=0x7f0a001a;
+        public static final int lstContent=0x7f0a001c;
+        public static final int lstDevices=0x7f0a0002;
+        public static final int mediaController1=0x7f0a000e;
+        public static final int txtAdvice=0x7f0a0018;
+        public static final int txtHumidity=0x7f0a0013;
+        public static final int txtLight=0x7f0a0011;
+        public static final int txtListHeading=0x7f0a0001;
+        public static final int txtMoisture=0x7f0a0017;
+        public static final int txtReceive=0x7f0a000a;
+        public static final int txtTemp=0x7f0a0015;
+        public static final int viewScroll=0x7f0a0009;
     }
     public static final class layout {
-        public static final int activity_helpscreen=0x7f030000;
-        public static final int activity_homescreen=0x7f030001;
-        public static final int activity_main=0x7f030002;
-        public static final int activity_mainactivity=0x7f030003;
-        public static final int activity_welcomescreen=0x7f030004;
-        public static final int list_item=0x7f030005;
+        public static final int activity_flower_select=0x7f030000;
+        public static final int activity_helpscreen=0x7f030001;
+        public static final int activity_homescreen=0x7f030002;
+        public static final int activity_main=0x7f030003;
+        public static final int activity_mainactivity=0x7f030004;
+        public static final int activity_welcomescreen=0x7f030005;
+        public static final int list_item=0x7f030006;
     }
     public static final class menu {
-        public static final int helpscreen=0x7f090000;
-        public static final int homescreen=0x7f090001;
-        public static final int main=0x7f090002;
+        public static final int flower_select=0x7f090000;
+        public static final int helpscreen=0x7f090001;
+        public static final int homescreen=0x7f090002;
+        public static final int main=0x7f090003;
     }
     public static final class string {
         public static final int action_settings=0x7f070001;
         public static final int app_name=0x7f070000;
+        public static final int btnChange=0x7f070014;
+        public static final int btnConnect=0x7f070013;
+        public static final int btnRefresh=0x7f070015;
+        public static final int btnSearchDevices=0x7f070012;
+        public static final int btnWelcome=0x7f070010;
+        public static final int connected=0x7f070017;
+        /**  HOME SCREEN 
+         */
+        public static final int couldNotConnect=0x7f070016;
         public static final int hello_world=0x7f070003;
         public static final int menu_settings=0x7f070004;
+        /**  ACTIVITY HOMESCREEN STRINGS 
+         */
+        public static final int pairedDeviceList=0x7f070011;
         public static final int pref_orientation_summary=0x7f070009;
         public static final int pref_orientation_title=0x7f070008;
         public static final int pref_send_report=0x7f070006;
@@ -78,6 +108,7 @@ public final class R {
         public static final int pref_uuid_summary=0x7f07000b;
         public static final int pref_uuid_title=0x7f07000a;
         public static final int pref_uuid_update=0x7f07000c;
+        public static final int title_activity_flower_select=0x7f070018;
         public static final int title_activity_helpscreen=0x7f070002;
         public static final int title_activity_main=0x7f070005;
     }

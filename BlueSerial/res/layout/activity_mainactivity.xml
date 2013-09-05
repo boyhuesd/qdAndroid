@@ -4,13 +4,120 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <ImageView
-        android:id="@+id/imageView1"
+    <MediaController
+        android:id="@+id/mediaController1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/imgPlant"
         android:layout_alignParentTop="true"
+        android:layout_marginTop="28dp" >
+    </MediaController>
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignTop="@+id/mediaController1"
+        android:layout_marginLeft="22dp"
+        android:src="@drawable/light_sensor" />
+
+    <TextView
+        android:id="@+id/txtLight"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/imageView2"
+        android:layout_toRightOf="@+id/imageView2"
+        android:text="00"
+        android:textSize="25dp" />
+
+    <ImageView
+        android:id="@+id/imgPlant"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/txtLight"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="145dp"
+        android:layout_marginTop="31dp"
         android:src="@drawable/images" />
+
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/imgPlant"
+        android:layout_alignRight="@+id/imgPlant"
+        android:src="@drawable/humidity" />
+
+    <TextView
+        android:id="@+id/txtHumidity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/txtLight"
+        android:layout_toRightOf="@+id/imageView3"
+        android:text="00%"
+        android:textSize="30dp" />
+
+    <ImageView
+        android:id="@+id/imageView4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/imgPlant"
+        android:layout_marginTop="30dp"
+        android:layout_toLeftOf="@+id/txtLight"
+        android:src="@drawable/temp" />
+
+    <TextView
+        android:id="@+id/txtTemp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/imageView4"
+        android:layout_alignLeft="@+id/txtLight"
+        android:text="00*C"
+        android:textSize="30dp" />
+
+    <ImageView
+        android:id="@+id/imageView5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/txtTemp"
+        android:layout_toLeftOf="@+id/txtHumidity"
+        android:src="@drawable/soil" />
+
+    <TextView
+        android:id="@+id/txtMoisture"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/txtTemp"
+        android:layout_alignBottom="@+id/txtTemp"
+        android:layout_alignRight="@+id/txtHumidity"
+        android:text="00"
+        android:textSize="30dp" />
+
+    <TextView
+        android:id="@+id/txtAdvice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/imageView4"
+        android:layout_below="@+id/imageView5"
+        android:layout_marginTop="36dp"
+        android:text="Status and advices"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <Button
+        android:id="@+id/button1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/txtAdvice"
+        android:layout_alignParentBottom="true"
+        android:text="@string/btnChange"
+        android:onClick="goBack" />
+
+    <Button
+        android:id="@+id/btnRefresh"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignRight="@+id/txtMoisture"
+        android:text="@string/btnRefresh" />
 
 </RelativeLayout>
