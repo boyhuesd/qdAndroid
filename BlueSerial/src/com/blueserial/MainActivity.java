@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,6 +34,7 @@ public class MainActivity extends Activity {
 	private Handler rxBufferHandler = new Handler();
 	private Handler initHandler = new Handler();
 	private Handler sendTimerHandler = new Handler();
+	private Handler updateUiHandler = new Handler();
 	
 	private static final String TAG = "BlueTest5-MainActivity";
 	private int mMaxChars = 50000;//Default
@@ -56,7 +58,6 @@ public class MainActivity extends Activity {
 	
 
 	
-	public static byte[] REQ_DATA = {-0x78, 0x00};
 	public static byte[] CMD_START= {0X33, 0X00};	
 
 	public static byte[] CMD_FIND = {0X11, 0X00};
@@ -69,16 +70,30 @@ public class MainActivity extends Activity {
 	public static byte CHECKSUM;
 	public static byte PUMB;
 	
+	// Variables for slave data
+	public long rMoisture;
+	public long rLight;
+	public long rBattery;
+	public long rHumidity;
+	public long rTemperature;
+	public boolean pumpAttached = false;
+	
+	// Variables for profile data
+	public long pMoisture;
+	public long pLight;
+	public long pBattery;
+	public long pHumidity;
+	public long pTemperature;
 	
 	
 	// Variables for initialCommunication
 	public boolean flag = false;
-	public static final byte FLAG_ID = 0x72;
+	public static final byte FLAG_ID = 0x72;	// LSB must be zero
 	public static final int MAX_COUNTER = 150;	// Timeout = maxcounter x postdelay 
 	public static final byte REQ_PLANT_TYPE = 0x23;
 	public static final byte REQ_FLAG = 0x22;
 	public boolean flagRxed = false;
-	public static final int POST_DELAY_TIME = 500;
+	public static final int POST_DELAY_TIME = 100;
 	public static final byte CMD_SET_PLANT = 0x24;
 	public static final byte CMD_SET_FLAG = 0x25;
 	
@@ -93,13 +108,26 @@ public class MainActivity extends Activity {
 	public static final byte SUN = 0x01;
 	
 	// Constant for common communication
-	public static final byte RESP_OK = 0x77;
 	public static final byte CMD_DAY = 0x01;
 	public static final byte CMD_HOUR = 0x02;
 	public static final byte CMD_MIN = 0x03;
 	
+	// Constant for slave responds
+	public static final byte RESP_OK = 0x77;
+	public static final byte RESP_PLANT_TYPE = 0x55;
+	public static final byte RESP_DATA = 0x78;	// LSB must be zero
 	
-	//Intent plantSelIntent = new Intent(this, FlowerSelect.class);
+	// Constant for Master request
+	public static final byte REQ_DATA = 0x30;
+
+	
+	// UI variables
+	public TextView txtLight;
+	public TextView txtHumidity;
+	public TextView txtTemp;
+	public TextView txtMoisture;
+	public TextView txtAdvice;
+	public ImageView imgWatering;
 	
 	Global global;
 	
@@ -116,6 +144,13 @@ public class MainActivity extends Activity {
 		mDeviceUUID = UUID.fromString(b.getString(Homescreen.DEVICE_UUID));
 		mMaxChars = b.getInt(Homescreen.BUFFER_SIZE);
 		
+		
+		txtLight = (TextView) findViewById(R.id.txtLight);
+		txtHumidity = (TextView) findViewById(R.id.txtHumidity);
+		txtTemp = (TextView) findViewById(R.id.txtTemp);
+		txtMoisture = (TextView) findViewById(R.id.txtMoisture);
+		txtAdvice = (TextView) findViewById(R.id.txtAdvice);
+		imgWatering = (ImageView) findViewById(R.id.imgWatering);
 		
 	}
 
@@ -188,7 +223,7 @@ public class MainActivity extends Activity {
 						{
 							mBTSocket.getInputStream().read(rxBuffer);
 					
-							UpdateData.run();
+							updateUi.run();
 					
 							res = true;
 						}
@@ -214,18 +249,107 @@ public class MainActivity extends Activity {
 		}
 	};
 
-	private Runnable UpdateData = new Runnable() 
+	private Runnable updateUi = new Runnable() 
 	{
+		boolean updateSuccess = false;
+		byte rx = 0;
+		byte[] data = new byte[256];
+		byte checksum = 0;
+		byte counter = 0;
+		int i;
+		
 		@Override
 		public void run()
 		{	
 			
-			MOISTURE 	= rxBuffer[0] << 8 + rxBuffer[1];
-			LIGHT		= rxBuffer[2] << 8 + rxBuffer[3];
-			HUMIDITY    = rxBuffer[4];
-			TEMP 		= rxBuffer[5];
-			BATTERY    	= rxBuffer[6] << 8 + rxBuffer[7];
-			PUMB 		= rxBuffer[8];
+			/* Data format 
+			 * <B_RESP_DATA + PUMP> <W_MOISTURE> <W_LIGHT> <W_BATTERY> <B_HUMIDITY>
+			 * <B_TEMP> <B_CHECKSUM>
+			 */
+			
+			// Request data
+			counter++;
+			txBuffer[0] = REQ_DATA;
+			txBuffer[1] = 0;
+			new Sendata().execute();
+			rx = rxBuffer[0];
+			// Copy rxBuffer to data
+			for (i = 0; i < 10; i++) {
+				data[i] = rxBuffer[i];
+			}
+			rxBuffer[0] = 0;
+			
+			
+			if ((rx & 0xfe) == RESP_DATA) { // Data received
+				checksum = (byte) (data[0] +
+						data[1] +
+						data[2] +
+						data[3] +
+						data[4] +
+						data[5] +
+						data[6] +
+						data[7] +
+						data[8]);
+				
+
+				
+				if (checksum == data[9]) { 	// checksum valid
+					// Update rValues
+					rMoisture = (long) ((data[1] << 8) + data[2]);
+					rLight = (long) ((data[3] << 8) + data[4]);
+					rBattery = (long) ((data[5] << 8) + data[6]);
+					rHumidity = (long) data[7];
+					rTemperature = (long) data[8];
+					
+					if ((rx & 0x01) == 1) {
+						pumpAttached = true;
+					}
+					else {
+						pumpAttached = false;
+					}
+					
+					// Update UI
+					runOnUiThread(new Runnable() {
+						  public void run() {
+							  txtLight.setText(String.valueOf(rLight));
+							  txtMoisture.setText(String.valueOf(rMoisture));
+							  txtTemp.setText(String.valueOf(rTemperature));
+							  txtHumidity.setText(String.valueOf(rHumidity));
+							  
+							  if (pumpAttached == true) {
+								  imgWatering.setVisibility(ImageView.VISIBLE);
+							  }
+							  else {
+								  imgWatering.setVisibility(ImageView.VISIBLE);
+							  }
+							  
+							  txtAdvice.append(String.valueOf(checksum & 0xff) + " " +
+							  String.valueOf((int) (data[9] & 0xff)) + " ");
+							  txtAdvice.append(String.valueOf(data[0]) + " " +
+									  String.valueOf(data[1] & 0xff) + " " +
+									  String.valueOf(data[2] & 0xff) + " " +
+									  String.valueOf(data[3] & 0xff) + " " +
+									  String.valueOf(data[4] & 0xff) + " " +
+									  String.valueOf(data[5] & 0xff) + " " +
+									  String.valueOf(data[6] & 0xff) + " " +
+									  String.valueOf(data[7] & 0xff) + " " +
+									  String.valueOf(data[8] & 0xff) + " "
+									  );
+						  }
+					});	
+					updateSuccess = true;
+				}
+			}
+			
+			if ((counter < MAX_COUNTER) && (updateSuccess == false))
+			{
+				updateUiHandler.postDelayed(updateUi, POST_DELAY_TIME);
+			}
+			else {						// Success
+				counter = 0;
+				updateSuccess = false;
+				updateUiHandler.postDelayed(updateUi, 500 * 10);
+			}
 		}
 	};
 	
@@ -246,59 +370,21 @@ public class MainActivity extends Activity {
 	private Runnable initialCommunication = new Runnable() {
 		int counter = 0;
 		byte rx = 0;
+		byte rx1 = 0;
+		byte rx2 = 0;
 		int sendQueue = 1;
 		
 		@Override
 		public void run() {
 			
 			Calendar now = Calendar.getInstance(); 
-			/*
-			if (flagRxed == false) {
-				txBuffer[0] = 0x22;						// TODO define REQ_FLAG
-				new Sendata().execute();
-			}
-			rx = rxBuffer[0];
-			if ((rx & 0xfe) == FLAG_ID) {	// FlagID received, check the flag
-				flagRxed = true;
-				if ((rx & 0x01) == 1) {
-					flag = true;			// Plant type declared
-				}
-				else {						// Switch to Select plant activity
-					runOnUiThread(new Runnable() {
-						  public void run() {
-						    startActivity(new Intent(MainActivity.this, FlowerSelect.class));;
-						  }
-						});
-				}
-			}
-			
-			
-			// Clear data buffer
-			rxBuffer[0] = 0;
-			counter++;
-		
-		if ((counter < MAX_COUNTER) && (flagRxed == false)) {
-			initHandler.postDelayed(initialCommunication, 500);
-		}
-		else if ((counter < MAX_COUNTER) && (flagRxed == true) && (flag == true)) {
-			txBuffer[0] = REQ_PLANT_TYPE;
-			new Sendata().execute();
-			initHandler.postDelayed(initialCommunication, 500);
-		}
-		else if (counter >= MAX_COUNTER) {			
-			initHandler.removeCallbacks(initialCommunication);
-			//Toast.makeText(getApplicationContext(), "@string/deviceNotCompatiable", Toast.LENGTH_LONG).show();
-			TextView updateRx = (TextView) findViewById(R.id.txtAdvice);
-			updateRx.setText("Device not compatible!");
-			updateRx.setBackgroundColor(Color.RED);
-		}	
-		*/
 			counter++;
 			
 			switch (sendQueue)
 			{
 			case 1: {					// Request FLAG
 				txBuffer[0] = REQ_FLAG;
+				txBuffer[1] = 0;
 				new Sendata().execute();
 				rx = rxBuffer[0];
 				rxBuffer[0] = 0;
@@ -319,8 +405,18 @@ public class MainActivity extends Activity {
 				txBuffer[0] = REQ_PLANT_TYPE;
 				new Sendata().execute();
 				rx = rxBuffer[0];
+				rx1 = rxBuffer[1];
+				rx2 = rxBuffer[2];		// Checksum byte
+				
 				rxBuffer[0] = 0;
-				//if 
+				
+				if (rx == RESP_PLANT_TYPE) {
+					// Check checksum
+					if (rx2 == (byte) (rx + rx1)) {
+						global.set_plantType(rx1);
+						sendQueue = 6;
+					}
+				}
 				break;
 			}
 			
@@ -397,10 +493,10 @@ public class MainActivity extends Activity {
 				rxBuffer[0] = 0;
 				if (rx == RESP_OK) {
 					sendQueue = 0; // END initial session
+					// START UPDATE UI
+					updateUiHandler.postDelayed(updateUi, POST_DELAY_TIME);
 				}
 			}
-			
-			
 			
 			default: break;
 			}
@@ -640,6 +736,7 @@ public class MainActivity extends Activity {
 		if (mBTSocket != null && mIsBluetoothConnected) {
 			new DisConnectBT().execute();
 		}
+		
 		Log.d(TAG, "Paused");
 		super.onPause();
 	}
@@ -658,7 +755,7 @@ public class MainActivity extends Activity {
 		global = ((Global) this.getApplication());
 		
 		//Start listening Rx
-		rxBufferHandler.postDelayed(bufferRx, 2);
+		rxBufferHandler.postDelayed(bufferRx, 1);
 		
 		// Initial communication
 		while (mBTSocket == null);
@@ -691,6 +788,7 @@ public class MainActivity extends Activity {
 	flag = false;
 	flagRxed = false;
 	initHandler.removeCallbacks(initialCommunication);
+	updateUiHandler.removeCallbacks(updateUi);
 
 		super.onStop();
 	}
@@ -714,5 +812,10 @@ public class MainActivity extends Activity {
 		TextView txtHumidity = (TextView) findViewById(R.id.txtHumidity);
 		TextView txtTemp = (TextView) findViewById(R.id.txtTemp);
 		TextView txtMoisture = (TextView) findViewById(R.id.txtMoisture);
+	}
+	
+	public void gotoWateringSchedule(View view) {
+		Intent intent = new Intent(this, WateringSchedule.class);
+		startActivity(intent);
 	}
 }

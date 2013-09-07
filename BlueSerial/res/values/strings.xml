@@ -30,5 +30,6 @@
     <string name="couldNotConnect">Could not connect. Please check the availability of the device.</string>
     <string name="connected">Connected to the device</string>
     <string name="title_activity_flower_select">Select plant type</string>
+    <string name="title_activity_watering_schedule">WateringSchedule</string>
 
 </resources>

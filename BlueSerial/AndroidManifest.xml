@@ -41,6 +41,10 @@
             android:name="com.blueserial.FlowerSelect"
             android:label="@string/title_activity_flower_select" >
         </activity>
+        <activity
+            android:name="com.blueserial.WateringSchedule"
+            android:label="@string/title_activity_watering_schedule" >
+        </activity>
     </application>
 
 </manifest>

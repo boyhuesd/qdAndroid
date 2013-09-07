@@ -33,14 +33,15 @@ public final class R {
         public static final int logo=0x7f020005;
         public static final int soil=0x7f020006;
         public static final int temp=0x7f020007;
+        public static final int watering_can=0x7f020008;
     }
     public static final class id {
-        public static final int action_settings=0x7f0a001d;
+        public static final int action_settings=0x7f0a001e;
         public static final int btnClear=0x7f0a000c;
         public static final int btnClearInput=0x7f0a0006;
         public static final int btnConnect=0x7f0a0004;
         public static final int btnDisconnect=0x7f0a0005;
-        public static final int btnPlantManager=0x7f0a001b;
+        public static final int btnPlantManager=0x7f0a001c;
         public static final int btnRefresh=0x7f0a0019;
         public static final int btnSearch=0x7f0a0003;
         public static final int btnSend=0x7f0a000d;
@@ -53,8 +54,9 @@ public final class R {
         public static final int imageView4=0x7f0a0014;
         public static final int imageView5=0x7f0a0016;
         public static final int imgPlant=0x7f0a000f;
-        public static final int layout=0x7f0a001a;
-        public static final int lstContent=0x7f0a001c;
+        public static final int imgWatering=0x7f0a001a;
+        public static final int layout=0x7f0a001b;
+        public static final int lstContent=0x7f0a001d;
         public static final int lstDevices=0x7f0a0002;
         public static final int mediaController1=0x7f0a000e;
         public static final int txtAdvice=0x7f0a0018;
@@ -72,14 +74,16 @@ public final class R {
         public static final int activity_homescreen=0x7f030002;
         public static final int activity_main=0x7f030003;
         public static final int activity_mainactivity=0x7f030004;
-        public static final int activity_welcomescreen=0x7f030005;
-        public static final int list_item=0x7f030006;
+        public static final int activity_watering_schedule=0x7f030005;
+        public static final int activity_welcomescreen=0x7f030006;
+        public static final int list_item=0x7f030007;
     }
     public static final class menu {
         public static final int flower_select=0x7f090000;
         public static final int helpscreen=0x7f090001;
         public static final int homescreen=0x7f090002;
         public static final int main=0x7f090003;
+        public static final int watering_schedule=0x7f090004;
     }
     public static final class string {
         public static final int action_settings=0x7f070001;
@@ -111,6 +115,7 @@ public final class R {
         public static final int title_activity_flower_select=0x7f070018;
         public static final int title_activity_helpscreen=0x7f070002;
         public static final int title_activity_main=0x7f070005;
+        public static final int title_activity_watering_schedule=0x7f070019;
     }
     public static final class style {
         /** 

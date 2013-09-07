@@ -120,4 +120,15 @@
         android:layout_alignRight="@+id/txtMoisture"
         android:text="@string/btnRefresh" />
 
+    <ImageView
+        android:id="@+id/imgWatering"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/imgPlant"
+        android:layout_toRightOf="@+id/imgPlant"
+        android:clickable="true"
+        android:onClick="gotoWateringSchedule"
+        android:src="@drawable/watering_can"
+        android:visibility="invisible" />
+
 </RelativeLayout>
