@@ -32,15 +32,6 @@
         android:textSize="25dp" />
 
     <ImageView
-        android:id="@+id/imgPlant"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/txtLight"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="31dp"
-        android:src="@drawable/images" />
-
-    <ImageView
         android:id="@+id/imageView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -118,6 +109,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignRight="@+id/txtMoisture"
+        android:onClick="refreshData"
         android:text="@string/btnRefresh" />
 
     <ImageView
@@ -130,5 +122,14 @@
         android:onClick="gotoWateringSchedule"
         android:src="@drawable/watering_can"
         android:visibility="invisible" />
+
+    <ImageView
+        android:id="@+id/imgPlant"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/txtHumidity"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="34dp"
+        android:src="@drawable/images" />
 
 </RelativeLayout>

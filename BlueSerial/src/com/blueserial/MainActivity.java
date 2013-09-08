@@ -29,9 +29,9 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity {
 	
+	final protected static char[] hexArray = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 	
 	private Handler tickRoutine = new Handler();
-	private Handler rxBufferHandler = new Handler();
 	private Handler initHandler = new Handler();
 	private Handler sendTimerHandler = new Handler();
 	private Handler updateUiHandler = new Handler();
@@ -96,6 +96,7 @@ public class MainActivity extends Activity {
 	public static final int POST_DELAY_TIME = 100;
 	public static final byte CMD_SET_PLANT = 0x24;
 	public static final byte CMD_SET_FLAG = 0x25;
+	public static final byte CMD_END = 0x77;
 	
 	
 	// Constant for DATE
@@ -256,6 +257,7 @@ public class MainActivity extends Activity {
 		byte[] data = new byte[256];
 		byte checksum = 0;
 		byte counter = 0;
+		boolean updating = true;
 		int i;
 		
 		@Override
@@ -267,21 +269,32 @@ public class MainActivity extends Activity {
 			 * <B_TEMP> <B_CHECKSUM>
 			 */
 			
+			if (updating) {
+				runOnUiThread(new Runnable() {
+					  public void run() {
+						  progressDialog = ProgressDialog.show(MainActivity.this, "Refreshing data", "");
+					  }
+				});	
+			}
+			updating = false;
+			
+			
 			// Request data
 			counter++;
 			txBuffer[0] = REQ_DATA;
 			txBuffer[1] = 0;
 			new Sendata().execute();
+			while (rxBuffer[0] == 0) {
+			}
 			rx = rxBuffer[0];
 			// Copy rxBuffer to data
 			for (i = 0; i < 10; i++) {
 				data[i] = rxBuffer[i];
 			}
-			rxBuffer[0] = 0;
 			
 			
-			if ((rx & 0xfe) == RESP_DATA) { // Data received
-				checksum = (byte) (data[0] +
+			if ((rx & 0xfe) == RESP_DATA) { // This deesn't work as rx = 0x79
+				checksum = (byte) (RESP_DATA +
 						data[1] +
 						data[2] +
 						data[3] +
@@ -295,9 +308,9 @@ public class MainActivity extends Activity {
 				
 				if (checksum == data[9]) { 	// checksum valid
 					// Update rValues
-					rMoisture = (long) ((data[1] << 8) + data[2]);
-					rLight = (long) ((data[3] << 8) + data[4]);
-					rBattery = (long) ((data[5] << 8) + data[6]);
+					rMoisture = (long) ((data[1] << 8) | data[2]);
+					rLight = (long) ((data[3] << 8) | data[4]);
+					rBattery = (long) ((data[5] << 8) | data[6]);
 					rHumidity = (long) data[7];
 					rTemperature = (long) data[8];
 					
@@ -320,26 +333,27 @@ public class MainActivity extends Activity {
 								  imgWatering.setVisibility(ImageView.VISIBLE);
 							  }
 							  else {
-								  imgWatering.setVisibility(ImageView.VISIBLE);
+								  imgWatering.setVisibility(ImageView.INVISIBLE);
 							  }
 							  
-							  txtAdvice.append(String.valueOf(checksum & 0xff) + " " +
-							  String.valueOf((int) (data[9] & 0xff)) + " ");
-							  txtAdvice.append(String.valueOf(data[0]) + " " +
-									  String.valueOf(data[1] & 0xff) + " " +
-									  String.valueOf(data[2] & 0xff) + " " +
-									  String.valueOf(data[3] & 0xff) + " " +
-									  String.valueOf(data[4] & 0xff) + " " +
-									  String.valueOf(data[5] & 0xff) + " " +
-									  String.valueOf(data[6] & 0xff) + " " +
-									  String.valueOf(data[7] & 0xff) + " " +
-									  String.valueOf(data[8] & 0xff) + " "
-									  );
+//							  txtAdvice.append(String.valueOf(checksum & 0xff) + " " +
+//							  String.valueOf((int) (data[9] & 0xff)) + " ");
+//							  txtAdvice.append(String.valueOf(data[0]) + " " +
+//									  String.valueOf(data[1] & 0xff) + " " +
+//									  String.valueOf(data[2] & 0xff) + " " +
+//									  String.valueOf(data[3] & 0xff) + " " +
+//									  String.valueOf(data[4] & 0xff) + " " +
+//									  String.valueOf(data[5] & 0xff) + " " +
+//									  String.valueOf(data[6] & 0xff) + " " +
+//									  String.valueOf(data[7] & 0xff) + " " +
+//									  String.valueOf(data[8] & 0xff) + " "
+//									  );
 						  }
 					});	
 					updateSuccess = true;
 				}
 			}
+		
 			
 			if ((counter < MAX_COUNTER) && (updateSuccess == false))
 			{
@@ -348,35 +362,25 @@ public class MainActivity extends Activity {
 			else {						// Success
 				counter = 0;
 				updateSuccess = false;
-				updateUiHandler.postDelayed(updateUi, 500 * 10);
+				updateUiHandler.postDelayed(updateUi, 20000);
+				
+				updating = true;
+				progressDialog.dismiss();
 			}
 		}
 	};
 	
-	private Runnable bufferRx = new Runnable()
-	{
-		int i = 0;
-		
-		@Override
-		public void run()
-		{	
-			//updateRx.append("5");
-			//txBuffer[0] = (byte) ++i;
-			//new Sendata().execute();
-			rxBufferHandler.postDelayed(bufferRx, 500);
-		}
-	};
-
 	private Runnable initialCommunication = new Runnable() {
 		int counter = 0;
 		byte rx = 0;
 		byte rx1 = 0;
 		byte rx2 = 0;
 		int sendQueue = 1;
+		boolean success = false;
 		
 		@Override
 		public void run() {
-			
+
 			Calendar now = Calendar.getInstance(); 
 			counter++;
 			
@@ -492,22 +496,43 @@ public class MainActivity extends Activity {
 				rx = rxBuffer[0];
 				rxBuffer[0] = 0;
 				if (rx == RESP_OK) {
-					sendQueue = 0; // END initial session
+					sendQueue = 9;
 					// START UPDATE UI
-					updateUiHandler.postDelayed(updateUi, POST_DELAY_TIME);
+					//updateUiHandler.postDelayed(updateUi, POST_DELAY_TIME);
+				}
+			}
+			
+			case 9: {
+				txBuffer[0] = CMD_END;
+				txBuffer[1] = 0x00;
+				new Sendata().execute();
+				rx = rxBuffer[0];
+				rxBuffer[0] = 0;
+				if (rx == RESP_OK) {
+					success = true;
 				}
 			}
 			
 			default: break;
 			}
 			
-			if (counter >= MAX_COUNTER) { // Init failed
-				// TODO Code for initfailed
-				initHandler.removeCallbacks(initialCommunication);
+			if (success == false) {
+				if (counter >= MAX_COUNTER) {	// Timed out
+					counter = 0;
+					initHandler.removeCallbacks(initialCommunication);
+				}
+				else {							// Repeat
+					initHandler.postDelayed(initialCommunication,
+							POST_DELAY_TIME);
+				}
 			}
 			else {
-				initHandler.postDelayed(initialCommunication,
-						POST_DELAY_TIME);
+				success = false;
+				sendQueue = 1;
+				counter = 0;
+				// START UPDATE UI
+				updateUiHandler.postDelayed(updateUi, POST_DELAY_TIME);
+				initHandler.removeCallbacks(initialCommunication);
 			}
 			
 		}
@@ -559,6 +584,15 @@ public class MainActivity extends Activity {
 				while (!bStop) {
 					if (inputStream.available() > 0) {
 						inputStream.read(rxBuffer);
+						
+						runOnUiThread(new Runnable() {
+							  public void run() {
+								  if (rxBuffer[0] != 0) {
+								  //txtAdvice.append(String.format("%02x", rxBuffer[0]&0xff) + " ");
+								  }
+							  }
+						});	
+						
 					}
 					}
 					//Thread.sleep(500);
@@ -731,6 +765,18 @@ public class MainActivity extends Activity {
 	    }
 	    return data;
 	}
+	
+	public static String bytesToHex(byte[] bytes) {
+	    char[] hexChars = new char[bytes.length * 2];
+	    int v;
+	    for ( int j = 0; j < bytes.length; j++ ) {
+	        v = bytes[j] & 0xFF;
+	        hexChars[j * 2] = hexArray[v >>> 4];
+	        hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+	    }
+	    return new String(hexChars);
+	}
+	
 	@Override
 	protected void onPause() {
 		if (mBTSocket != null && mIsBluetoothConnected) {
@@ -754,8 +800,6 @@ public class MainActivity extends Activity {
 		// Get global var
 		global = ((Global) this.getApplication());
 		
-		//Start listening Rx
-		rxBufferHandler.postDelayed(bufferRx, 1);
 		
 		// Initial communication
 		while (mBTSocket == null);
@@ -784,7 +828,6 @@ public class MainActivity extends Activity {
 	protected void onStop() {
 		Log.d(TAG, "Stopped");
 		
-	rxBufferHandler.removeCallbacks(bufferRx);
 	flag = false;
 	flagRxed = false;
 	initHandler.removeCallbacks(initialCommunication);
@@ -817,5 +860,9 @@ public class MainActivity extends Activity {
 	public void gotoWateringSchedule(View view) {
 		Intent intent = new Intent(this, WateringSchedule.class);
 		startActivity(intent);
+	}
+	
+	public void refreshData(View view) {
+		updateUiHandler.post(updateUi);
 	}
 }
