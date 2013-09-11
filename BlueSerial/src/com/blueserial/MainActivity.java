@@ -200,55 +200,6 @@ public class MainActivity extends Activity {
 		} 
 	};
 	
-	
-	
-	private Runnable Routine = new Runnable () 
-	{	
-		private boolean res = false;
-		private boolean bStop = false;
-		
-		@Override
-		public void run()
-		{
-			try
-			{
-				while(!bStop)
-				{
-					while(!res)
-					{
-						mBTSocket.getOutputStream().write(REQ_DATA);
-				
-						Thread.sleep(100);
-				
-						if (mBTSocket.getInputStream().available() == 10)
-						{
-							mBTSocket.getInputStream().read(rxBuffer);
-					
-							updateUi.run();
-					
-							res = true;
-						}
-
-					}	
-				}
-					res = false;
-					rxBuffer = null;
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				
-			}
-			tickRoutine.postDelayed(Routine, 60000);
-		}
-		
-		public void stop() 
-		{
-			bStop = true;
-		}
-	};
 
 	private Runnable updateUi = new Runnable() 
 	{
